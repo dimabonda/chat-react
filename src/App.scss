@@ -1,0 +1,41 @@
+*{
+	box-sizing: border-box;
+}
+
+.App {
+  text-align: center;
+  font-family: 'Poppins', sans-serif;
+  color: #e2e2e2;
+	.RegisterPage{
+		height: 100vh;
+		display: flex;
+		align-items: center;
+	}
+	.Form{
+		max-width: 400px;
+		margin: 0 auto;
+    	padding: 20px;
+	}
+}
+.MainChatModal{
+	padding: 10px;
+	&>div:nth-child(1){
+		display: flex;
+		justify-content: space-between;
+		margin: 20px 10px 10px;
+	}
+	&>div:nth-child(2){
+		display: flex;
+		justify-content: end;
+	}
+}
+.ModalBox{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	min-height: 50px;
+	width: 350px;
+	background-color: rgb(255, 255, 255);
+	border-radius: 10px;
+}
