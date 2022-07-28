@@ -8,7 +8,7 @@ import { actionGetOneChat, actionLeftChat } from './actions/actionsForChats';
 import { store } from './redux/store';
 import Routes from './components/Routes/Routes';
 export const history = createBrowserHistory();
-export const socket = window.io("ws://git.heroku.com/young-headland-40995.git")
+export const socket = window.io("wss://young-headland-40995.herokuapp.com/")
 
 console.log(store.getState())
 store.subscribe(() => console.log(store.getState()));
