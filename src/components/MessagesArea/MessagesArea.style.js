@@ -5,8 +5,10 @@ import SimpleBar from 'simplebar-react';
 export const MessagesAreaWrapper = styled.div`
     height: 100%;
     width: 100%;
-    overflow: hidden;
+    overflow: hidden auto;
     position: relative;
+    display: flex;
+    flex-direction: column-reverse;
 `;
 
 
@@ -40,12 +42,6 @@ export const DropContainer = styled.div`
         left: 50%;
         transform: translate(-50%, -50%);
     }
-`;
-
-export const MessageGroup = styled.div`
-    display: flex;
-    margin-top: 10px;
-    margin-left: 20px;
 `;
 
 export const ScrollBottom = styled.div`

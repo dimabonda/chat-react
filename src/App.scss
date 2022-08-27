@@ -1,15 +1,18 @@
 *{
 	box-sizing: border-box;
+	font-family: 'Noto Sans';
 }
 
 .App {
   text-align: center;
-  font-family: 'Poppins', sans-serif;
+  
   color: #e2e2e2;
 	.RegisterPage{
 		height: 100vh;
 		display: flex;
 		align-items: center;
+		flex-direction: column;
+		justify-content: center;
 	}
 	.Form{
 		max-width: 400px;

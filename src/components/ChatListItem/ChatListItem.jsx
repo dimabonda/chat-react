@@ -22,8 +22,8 @@ const ChatListItem = ({chat, handleSetId, isActive, currUserId, setDraftValue, c
     useEffect(() => {
         showDraftMessage()
         return (() => {
+            console.log('work')
             clearTimeout(timer);
-            
         })
     },[inputValue])
 

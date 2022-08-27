@@ -3,152 +3,116 @@ import { useEffect, useState } from "react"
 import { actionFullRegister } from "../actions/actionLogin";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+import { Formik, Form, useField } from 'formik';
+import * as Yup from 'yup';
+
+
 
 function RegisterPage ({onRegister}) {
 
-    const [values, setValues] = useState({
-        login: '',
-        firstPassword: '',
-        secondPassword: '',
-        nick: '',
-        showPassword: ''
-    })
-
-    const [errorValues, setErrorValues] = useState({
-        login: '',
-        firstPassword: '',
-        secondPassword: '',
-        nick: ''
-    })
-
-    useEffect(() => {
-        if(Object.values(errorValues).every(item => item === false)) {
-            onRegister(values.login, values.firstPassword, values.nick)
-        }
-    }, [errorValues])
-
-
-function validatePassword(fp,l,n,sp) {
-    let e = {
-        login: '',
-        firstPassword: '',
-        secondPassword: '',
-        nick: ''
-    }
-    let errorsP = [];
-    let errorsL = [];
-    let errorsN = [];
-    let errorsSP = [];
-
-    if (fp.length < 4 || fp.length > 12) {
-        errorsP.push("Your password must be at least 4 and no more than 12 characters"); 
-    }
-    if (!/[a-z]/.test(fp)) {
-        errorsP.push("Your password must contain at least one letter.");
-    }
-    if (!/[0-9]/.test(fp))  {
-        errorsP.push("Your password must contain at least one digit."); 
-    }
-    if (errorsP.length > 0) {
-        e = {...e, firstPassword: errorsP.join('/')}
-    } else {
-        e = {...e, firstPassword: false}
-    }
-    if(!/[a-z]/.test(l)){
-        errorsL.push("Your login must contain at least one letter");
-    }
-    if (l.length < 4 || l.length > 8) {
-        errorsL.push("Your login must be at least 4 and no more than 8 characters"); 
-    }
-    if (errorsL.length > 0){
-        e = {...e, login: errorsL.join('/')}
-    } else {
-        e = {...e, login: false}
-    }
-    if(!/[a-z]/.test(n)){
-        errorsN.push("Your nick must contain at least one letter");
-    }
-    if (n.length < 3 || n.length > 15) {
-        errorsN.push("Your nick must be at least 3 and no more than 15 characters"); 
-    }
-    if (errorsN.length > 0){
-        e = {...e, nick: errorsN.join('/')}
-    } else {
-        e = {...e, nick: false}
-    }
-    if(fp !== sp){
-        errorsSP.push("Password not match")
-    }
-    if (errorsSP.length > 0){
-        e = {...e, secondPassword: errorsSP.join('/')}
-    } else {
-        e = {...e, secondPassword: false}
-    }
-    setErrorValues({...errorValues, ...e})
-}
-
-    const handleChange = (prop) => (e) => {
-        setValues({...values, [prop] : e.target.value})
-    }
-
     return (
         <div className="RegisterPage">
-            <form className="Form" noValidate autoComplete="off">
+            <Formik
+                initialValues={{
+                    login: '',
+                    nick: '',
+                    firstPassword: '',
+                    secondPassword: ''
+                }}
+                validationSchema={Yup.object({
+                    login: Yup.string()
+                        .min(6, "Must be 6 characters or more")
+                        .matches(/^\S*$/, "Must be without space")
+                        .max(10, "Must be 10 characters or less")
+                        .required('Required'),
+                    nick: Yup.string()
+                        .min(3, "Must be 3 characters or more")
+                        .max(15, "Must be 15 characters or less")
+                        .required('Required'),
+                    firstPassword: Yup.string()
+                        .min(6, "Must be 6 characters or more")
+                        .matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{0,}$/, "Must be at least one letter, one number and one special character")
+                        .max(10, "Must be 10 characters or less")
+                        .required('Required'),
+                    secondPassword: Yup.string()
+                        .oneOf([Yup.ref('firstPassword'), null], 'Passwords must match')
+                        .required('Required')
+                })}
+                onSubmit={async({login, firstPassword, nick}, {setFieldError, resetForm}) => {
+                    let val = await onRegister(login, firstPassword, nick)
+                    val ? resetForm() : setFieldError('formError', 'User already exists')
+                }}
+            >
+                {formik => (<form  className="Form" onSubmit={formik.handleSubmit} noValidate autoComplete="off">
                     <Typography sx={{mb: '20px'}} color='primary' variant='h4'>Registration form</Typography>
                     <TextField 
-                        error={!!errorValues.login}
-                        sx={{width: '100%', mb: (!!errorValues.login) ? '10px' : '30px'}} 
+                        error={formik.touched.login && Boolean(formik.errors.login)}
+                        helperText={formik.touched.login && formik.errors.login}
+                        sx={{width: '100%', mb: (formik.touched.login && formik.errors.login) ? '7px' : '30px'}} 
                         required  
+                        name="login"
                         label="Login" 
                         variant="outlined" 
-                        helperText={errorValues.login}
-                        value={values.login}
+                        value={formik.values.login}
                         autoFocus
-                        onChange={handleChange('login')}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                     />
                     <TextField
-                        error={!!errorValues.nick}
-                        sx={{width: '100%', mb: !!errorValues.nick ? '10px' : '30px'}}
+                        error={formik.touched.nick && Boolean(formik.errors.nick)}
+                        sx={{width: '100%', mb: formik.touched.nick && formik.errors.nick ? '7px' : '30px'}}
                         label="Nick"
-                        helperText={errorValues.nick}
+                        name="nick"
+                        helperText={formik.touched.nick && formik.errors.nick}
                         required
                         variant="outlined"
-                        value={values.nick}
-                        autoFocus
-                        onChange={handleChange('nick')}
+                        value={formik.values.nick}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                     />
 
                     <TextField
-                        error={!!errorValues.firstPassword}
-                        sx={{width: '100%', mb: !!errorValues.firstPassword ? '10px' : '30px'}}
-                        helperText={errorValues.firstPassword} 
+                        error={formik.touched.firstPassword && Boolean(formik.errors.firstPassword)}
+                        sx={{width: '100%', mb: formik.touched.firstPassword && formik.errors.firstPassword ? '7px' : '30px'}}
+                        helperText={formik.touched.firstPassword && formik.errors.firstPassword} 
                         required  
+                        name="firstPassword"
                         variant="outlined" 
                         label="Password"
                         type={'password'}
-                        value={values.firstPassword}
-                        onChange={handleChange('firstPassword')}
+                        value={formik.values.firstPassword}
+                        onBlur={formik.handleBlur}
+                        onChange={formik.handleChange}
                         
                     />
+                    {console.log(formik.errors)}
                     <TextField
-                        error={!!errorValues.secondPassword}
-                        sx={{width: '100%', mb: !!errorValues.secondPassword ? '10px' : '30px'}}
-                        helperText={errorValues.secondPassword} 
+                        error={formik.touched.secondPassword && Boolean(formik.errors.secondPassword)}
+                        sx={{width: '100%', mb: formik.touched.secondPassword && formik.errors.secondPassword ? '7px' : '30px'}}
+                        helperText={formik.touched.secondPassword && formik.errors.secondPassword} 
                         required  
+                        name="secondPassword"
                         variant="outlined" 
-                        label="Confirm password "
+                        label="Confirm password"
                         type={'password'}
-                        value={values.secondPassword}
-                        onChange={handleChange('secondPassword')}
+                        value={formik.values.secondPassword}
+                        onChange={formik.handleChange}
+                        
                     />
-            <Button 
-                onClick={() => { validatePassword(values.firstPassword, values.login, values.nick, values.secondPassword)}} 
-                sx={{width: '200px', mt: '30px'}} 
-                variant="contained">
-                    Submit
-            </Button><br/>
+                    <div>{formik.isSubmitting ? 'Loading...' : (formik.errors.formError ? formik.errors.formError : '')}</div>
+                    <Button 
+                        type="submit"
+                        disabled={formik.isSubmitting}
+                        sx={{width: '200px', mt: formik.isSubmitting || formik.errors.formError ? '6px' : '30px'}} 
+                        variant="contained"
+                        >
+                            Submit
+                    </Button>
+                </form>)}
+            </Formik>
+            
             <Link className='RegisterBtn' to='/login'>Login</Link>
-            </form>
+            
         </div>
     )
 }

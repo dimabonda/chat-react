@@ -8,9 +8,7 @@ import { ChatPageMain, ChatPageWrapper } from "./ChatPageData.style";
 import MessagesArea from "../MessagesArea/MessagesArea";
 
 const ChatPageData = ({match: {params: {_id}}, getData}) => {
-	useEffect(() => {
-		getData(_id, true);
-	}, [_id])
+	
 
 	return (
 		<ChatPageWrapper>

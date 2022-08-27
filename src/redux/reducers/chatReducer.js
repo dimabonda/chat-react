@@ -1,3 +1,4 @@
+import { convert } from "../../components/Time/Time";
 
 
 export function chatReducer (state={}, {type, data, id, mediaKey, name}){
@@ -21,19 +22,48 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
 		}
 	}
 
-    if(type === 'MSG'){
-        let newMessages
-        for(const value of data){
-			newMessages = {
-				...newMessages, 
-				[value._id]:{...value}
-			}
-		}
-		return {
-			...state, [id] : {...(state[id] || {_id: id, title: "loading"}),
-             messages: Object.fromEntries(Object.entries({...(state[id]?.messages || {}), ...newMessages}).sort((a,b) => a[0] < b[0] ? 1 : -1))}
-		}
-	}
+    // if(type === 'MESSAGES'){
+    //     let newMessages
+    //     for(const value of data){
+	// 		newMessages = {
+	// 			...newMessages, 
+	// 			[value._id]:{...value}
+	// 		}
+	// 	}
+	// 	return {
+	// 		...state, [id] : {...(state[id] || {_id: id, title: "loading"}),
+    //          messages: Object.fromEntries(Object.entries({...(state[id]?.messages || {}), ...newMessages}).sort((a,b) => a[0] < b[0] ? 1 : -1))}
+	// 	}
+	// }
+
+    // if (type === MSG){
+    //     return {
+    //         ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
+    //             messages : 
+    //         }
+    //     }
+    // }
+
+    if(type === 'MESSAGES'){
+        const messages = data.reduce((p,c)=>{
+            let lastArray = p[p.length - 1];
+            const lastMessageOfLastArray = p[p.length-1][p[p.length-1].length - 1 ];
+            if( lastMessageOfLastArray?.createdAt - c.createdAt > 600000 
+                    || (lastMessageOfLastArray?.createdAt ? convert(lastMessageOfLastArray?.createdAt).getDateMonthName() !== convert(c.createdAt).getDateMonthName() : false )
+                    || (lastMessageOfLastArray?.owner ? lastMessageOfLastArray?.owner?._id !== c?.owner?._id : false)  ){
+                p.push([]);
+                lastArray = p[p.length - 1];
+            }
+            lastArray.push(c);
+            return p;
+        }, [...(state[id]?.messages || [[]]) ]);
+        
+        return {
+            ...state, [id] : {...(state[id] || {_id: id, title: "loading"}),
+                messages : messages
+            }
+        }
+    }
 
 	if(type === 'LEFTCHAT'){
         let newState = {...state};

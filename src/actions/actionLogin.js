@@ -59,4 +59,6 @@ export const actionFullRegister = (log, pass, nick) =>
         if(user){
             dispatch(actionFullLogin(log, pass));
         }
+
+        return user
     }

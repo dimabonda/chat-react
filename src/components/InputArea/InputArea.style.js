@@ -21,11 +21,10 @@ export const TextArea = styled(TextareaAutosize)`
     resize: none;
     font-style: normal;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 22px;
     height: 24px;
     overflow: hidden;
     outline: none;
-    
 `;
 

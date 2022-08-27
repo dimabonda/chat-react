@@ -6,8 +6,8 @@ import { actionGetOneChat, actionSetDropMedia, actionSetMessageEditor } from "./
 import { actionGetAllMediaFromChat } from "./actionsMedia";
 import { actionOpenModal } from "./actionsForModal";
 
-export const actionAddMessages = (data, id) => ({type: 'MSG', data, id});
-const actionAddMessage = (message, id) => ({type: 'MSG', data: [message], id});
+export const actionAddMessages = (data, id) => ({type: 'MESSAGES', data, id});
+const actionAddMessage = (data, id) => ({type: 'MSG', data, id});
 
 export const actionGetAllMessage = (_id) => 
 	actionPromise('allMessages', gql(`query findAllMes($chatId: String) {
@@ -177,10 +177,14 @@ export const actionEditMessage = (chatId, message) =>
 		}
 	}
 
-	export const actionGetMessageForChat = (_id, fromChatItem) => 
+	export const actionGetMessageForChat = (_id, isFirst) => 
 	async (dispatch,getState) => {
-		let messLen = fromChatItem ? 0 : Object.values(getState().chats[_id]?.messages || {}).length; 
-
+		const state = getState();
+		if (isFirst && state.chats[_id]?.messages) return
+		if (state.promise.messages?.status === 'PENDING') return
+		// let messLen = Object.values(state.chats[_id]?.messages || {}).length;
+		let messLen = state.chats[_id]?.messages ? state.chats[_id]?.messages.reduce((currentCount, array) => currentCount + array.length, 0) : 0;
+		console.log('skip', messLen)
 		let messages = await dispatch(
 			actionPromise('messages', gql(`query FindMessChat($chat: String) {
 				MessageFind(query: $chat) {
@@ -248,9 +252,10 @@ export const actionEditMessage = (chatId, message) =>
 				)}
 			))
 		)
+		
 		if(messages){
 			dispatch(actionAddMessages([...messages], _id));
-			dispatch(actionGetAllMediaFromChat(_id))
+			// dispatch(actionGetAllMediaFromChat(_id))
 		}
 		return messages
 	}

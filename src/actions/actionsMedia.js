@@ -55,7 +55,7 @@ export const actionAddAllMediaChat = (id, data) => ({type: 'ALLMEDIACHAT', id, d
 export const actionGetAllMediaFromChat = (id) => 
 	async(dispatch, getState) => {
 		const messages = await dispatch(actionGetAllMessage(id));
-		if(messages.length !== 0) {
+		if(messages?.length !== 0) {
     		const media = messages.reduce((a, b) => b.media ? [...a, ...b.media] : a,[] )
 			dispatch(actionAddAllMediaChat(id, media));
 		}
