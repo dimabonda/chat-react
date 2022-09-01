@@ -4,6 +4,7 @@ import { ReplyMessage } from "../ReplyMessage/ReplyMessage";
 import { convert } from "../Time/Time";
 import { ForwardedMessageHeader, MessageContainer, MessageFooter, MessageOwner, MessageText, MessageWrapper, TimeMessage } from "./Message.style";
 import { MemoMessageMediaContainer } from "../MessageMediaContainer/MessageMediaContainer";
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Message = ({mes, chatId, currUser, lastElem}) => {
 	const isOwner = currUser === mes?.owner?._id ? true : false;
@@ -26,7 +27,8 @@ const Message = ({mes, chatId, currUser, lastElem}) => {
 						<MessageText>{checkedMessage?.text?.replace(/ /g, "\u00a0") || ''}</MessageText>
 						<MessageFooter>
 							<MessageOwner>{isOwner ? 'You' : mes.owner.nick || 'nick'}</MessageOwner>
-							<TimeMessage owner={isOwner}>{convert(mes.createdAt).getTime()}</TimeMessage>
+							{mes?.status ? <CircularProgress size={16}/> : <TimeMessage owner={isOwner}>{convert(mes.createdAt).getTime()}</TimeMessage>}
+							
 						</MessageFooter>
 					</MessageContainer>
 					<MessageOptions message={checkedMessage} chatId={chatId} handleClose={handleClose} open={open} anchorEl={anchorEl}/>

@@ -2,12 +2,16 @@ import { actionPromise } from "./actionsPromise";
 import { gql } from "../helpers/gql";
 import { actionAddAllMediaChat, actionUploadFiles } from "./actionsMedia";
 import { addUploadDate } from "../helpers/addUploadDate";
-import { actionGetOneChat, actionSetDropMedia, actionSetMessageEditor } from "./actionsForChats";
+import { actionAddDraftMessage, actionGetOneChat, actionSetDropMedia, actionSetInputMessageValue, actionSetMessageEditor } from "./actionsForChats";
 import { actionGetAllMediaFromChat } from "./actionsMedia";
-import { actionOpenModal } from "./actionsForModal";
+import { actionIsOpen, actionOpenModal } from "./actionsForModal";
 
-export const actionAddMessages = (data, id) => ({type: 'MESSAGES', data, id});
+const actionAddMessages = (data, id) => ({type: 'MESSAGES', data, id});
 const actionAddMessage = (data, id) => ({type: 'MSG', data, id});
+const actionAddEditedMessage = (data, id) => ({type: 'EDITED_MSG', data, id});
+const actionAddNewMessage = (data, id) => ({type: 'NEW_MESSAGE', data, id});
+// const actionAddLoadingMessage = (data, id) => ({type: 'LOADED_MSG', data, id})
+const actionRemoveLoadingMessage = (id) => ({type: 'REMOVE_LOADED_MSG', id});
 
 export const actionGetAllMessage = (_id) => 
 	actionPromise('allMessages', gql(`query findAllMes($chatId: String) {
@@ -87,40 +91,102 @@ const actionGetOneMessage = (_id) =>
 		}
 	}`, {mesId: JSON.stringify([{_id}])}))
 
+const actionUpdateOneMessage = (msg) => 
+	async (dispatch, getState) => {
+		
+		
+		let message = await dispatch(actionGetOneMessage(msg._id));
+		
+		// if(message?.owner._id === currentUser){
+		// 	if(messages[0])
+		// }
+
+		// if(data?.createdAt > lastLoadedMessage){             //check message (first or not)
+			
+
+			// if(data?.owner._id === currentUser){
+
+			// } else {
+			// 	dispatch(actionAddNewMessage(data, msg?.chat?._id))
+			// }
+		// }
+		// если юзер ты то поменять или не ты 
+		// элс найти нужное сообщение 
+		// и подменяем 
+		// dispatch(actionAddMessage(message, message.chat._id));
+		return message
+	}
+
 export const actionUpsertMSG = (message) => 
 	actionPromise('sendMSG', gql(`mutation MessageUpsert($message: MessageInput) {
 		MessageUpsert(message: $message) {
-		  _id
-		  createdAt
-		  text
-		  media {
-			url
 			_id
-			type
-		  }
-		  replyTo{
-			  _id
-		  }
-		  forwarded{
-			  _id
-		  }
-		  owner {
-			nick
-			avatar {
-			  url
+			text
+			createdAt
+			chat{
+				_id
 			}
-		  }
-		  chat{
-			_id
-		  }
+			media {
+				url
+				_id
+				type
+				originalFileName
+			}
+			replyTo{
+				_id
+				text 
+				createdAt
+				media {
+					url
+					_id
+					type
+				}
+				owner {
+					nick
+				}
+			}
+			replies{
+				_id text 
+				chat{
+					_id
+				}
+			}
+			forwarded{
+				_id
+				text
+				createdAt
+				owner {
+					nick
+				  }
+				  media {
+					originalFileName
+					url
+					_id
+					type
+				  }
+			}
+			forwardWith{
+				_id
+				text
+				chat{
+					_id
+				}
+			}
+			owner {
+				_id
+				nick
+				avatar {
+				  url
+				}
+			}
 		}
-	  }`, {
-		  message 
-	  }))
+	}`, {
+		message 
+	}))
 
 export const actionSendMessage = (messageId, chatId, text, media, replyTo, forwarded) => 
 	async (dispatch, getState) => {
-		// media.map((item) => item?.name || (item.name = 'record'))
+		const state = getState();
 		let newMedia = null
 		if(media){
 			let checkedMedia = media.filter(item => !item?._id && item)
@@ -131,33 +197,68 @@ export const actionSendMessage = (messageId, chatId, text, media, replyTo, forwa
 		const mes = Object.fromEntries(Object.entries({
 			_id: messageId, chat: (chatId ? {_id: chatId} : chatId), text: text, media: newMedia, replyTo: (replyTo ? {_id: replyTo} : replyTo), forwarded: (forwarded ? {_id: forwarded} : forwarded) 
 		}).filter(([_, v]) => v != null));
-			let message = await dispatch(actionUpsertMSG(mes))
-			return message
+		
+		
+		if(!mes?._id){
+			const {chats, ...owner} = state?.promise?.aboutMe?.payload;
+			dispatch(actionAddNewMessage({...mes, status: 'loading', owner: {...owner}}, chatId))
+		}
+		
+		let message = await dispatch(actionUpsertMSG(mes))
+
+		if(!mes?._id && message){
+			dispatch(actionRemoveLoadingMessage(chatId))
+			dispatch(actionAddNewMessage(message, chatId))
+			dispatch(actionGetOneChat(chatId));
+		}else if(mes?._id){
+			dispatch(actionAddEditedMessage(message, chatId))
+		}
+
+		if (messageId && media){
+			message && dispatch(actionSetInputMessageValue(chatId, "", 'messageEditor'));
+			message && dispatch(actionIsOpen(false));
+		} else if(messageId && !media){
+			message && dispatch(actionSetMessageEditor(chatId, null))
+		} else if(!messageId && media){
+			message?.replyTo?._id && dispatch(actionAddDraftMessage(chatId, null));
+			message && dispatch(actionSetInputMessageValue(chatId, "", 'mainInputValue'));
+			message && dispatch(actionIsOpen(false));
+		} else if(!messageId && !media){
+			(message?.replyTo?._id || message?.forwarded?._id) && dispatch(actionAddDraftMessage(chatId, null));
+			message && !message?.forwarded?._id && dispatch(actionSetInputMessageValue(chatId, "", 'mainInputValue')) && dispatch(actionSetInputMessageValue(chatId, "", 'draftValue'));
+		}
+		return message
 	}
 
 export const actionGetMessageFromSocket = (msg) => 
 	async (dispatch, getState) => {
+		const currentUser = getState()?.auth?.payload?.sub?.id;
+		const messages = getState()?.chats[msg?.chat?._id]?.messages || [[]];
 		let message = await dispatch(actionGetOneMessage(msg._id));
-		dispatch(actionAddMessage(message, message.chat._id));
-		dispatch(actionGetOneChat(msg.chat._id));
+		if(message?.owner?._id !== currentUser){
+			const arrayWithLastLoadedMessage = messages.find(array => array.find(obj => !obj.status))
+			const lastLoadedMessage = arrayWithLastLoadedMessage.find(obj => !obj.status);
+			lastLoadedMessage?.createAt < message?.createAt ? dispatch(actionAddNewMessage(message, message?.chat?._id)) : dispatch(actionAddEditedMessage(message, message?.chat?._id))
+			dispatch(actionGetOneChat(msg.chat._id));
+		}
+
+		
+		
 		////////check all replies and forwardWith (if message has them to send changes)
+		console.log(message)
 		const {replies, forwardWith} = message;
 		const state = getState();
 		// const [,route, histId] = history.location.pathname.split('/');
 		if(replies){
 			replies.forEach(async ({_id, chat}) => {
-				if(state.chats[chat._id].messages?.hasOwnProperty(_id)){
 					let mes = await dispatch(actionGetOneMessage(_id))
-					dispatch(actionAddMessage(mes, chat._id));
-				}
+					dispatch(actionAddEditedMessage(mes, chat?._id))
 			})
 		}
 		if(forwardWith){
 			forwardWith.forEach(async ({_id, chat}) => {
-				if(state.chats[chat._id].messages?.hasOwnProperty(_id)){
 					let mes = await dispatch(actionGetOneMessage(_id))
 					dispatch(actionAddMessage(mes, chat._id));
-				}
 			})
 		}
 		const {media} = msg;

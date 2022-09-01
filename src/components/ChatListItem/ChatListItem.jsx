@@ -4,7 +4,15 @@ import { connect } from "react-redux";
 import { actionSetInputMessageValue } from "../../actions/actionsForChats";
 import { backendURL } from "../../helpers/gql";
 import { TimeLastMessage } from "../Time/Time";
-import { ChatListItemLink, ChatListItemContent, ChatListItemTitle, ChatListItemWrapper, ChatListLastMessage, ChatListItemHeader, ChatListItemFooter, MessageDraftChatListItem } from "./ChatListItem.style";
+import { ChatListItemLink, 
+        ChatListItemContent, 
+        ChatListItemTitle, 
+        ChatListItemWrapper, 
+        ChatListLastMessage,
+        ChatListItemHeader, 
+        ChatListItemFooter, 
+        MessageDraftChatListItem
+     } from "./ChatListItem.style";
 import OwnerStar from "./icons8_star.png";
 import OnwerStarActive from "./icons8_star_white.png";
 
@@ -22,7 +30,6 @@ const ChatListItem = ({chat, handleSetId, isActive, currUserId, setDraftValue, c
     useEffect(() => {
         showDraftMessage()
         return (() => {
-            console.log('work')
             clearTimeout(timer);
         })
     },[inputValue])

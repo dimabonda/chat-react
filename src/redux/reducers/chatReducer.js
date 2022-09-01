@@ -36,13 +36,50 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
 	// 	}
 	// }
 
-    // if (type === MSG){
-    //     return {
-    //         ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
-    //             messages : 
-    //         }
-    //     }
-    // }
+    if (type === 'REMOVE_LOADED_MSG'){
+        const messages = [...(state[id]?.messages || [[]]) ];
+        let indexArrayWithLoadingMessage = messages.findIndex(array => array.find(obj => obj.status))
+        messages[indexArrayWithLoadingMessage] = messages[indexArrayWithLoadingMessage].filter(obj => !obj.status)
+        return {
+            ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
+                messages : messages
+            }
+        }
+    }
+
+    if (type === 'EDITED_MSG'){
+        const messages = [...(state[id]?.messages || [[]]) ];
+        let indexArrayWithMessage = messages.findIndex(array => array.find(obj => obj._id === data._id))
+        messages[indexArrayWithMessage] = messages[indexArrayWithMessage].map(obj => {
+            return obj._id === data._id ? data : obj
+        })
+        return {
+            ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
+                messages : messages
+            }
+        }
+    }
+
+    if (type === 'NEW_MESSAGE'){
+        const messages = [...(state[id]?.messages || [[]]) ]
+        
+            const firstArray = messages[0];
+            console.log(firstArray);
+            const firstMessageOfFirstArray = messages[0][0];
+            if(+ new Date - firstMessageOfFirstArray?.createdAt > 600000 
+                || (firstMessageOfFirstArray?.createdAt ? convert(firstMessageOfFirstArray?.createdAt).getDateMonthName() !== convert(+new Date).getDateMonthName() : false )
+                ||  (firstMessageOfFirstArray?.owner ? firstMessageOfFirstArray?.owner?._id !== data?.owner?._id : false) ){
+                    messages.pop([])
+            }
+            firstArray.unshift(data)
+        
+        
+        return {
+            ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
+                messages : messages
+            }
+        }
+    }
 
     if(type === 'MESSAGES'){
         const messages = data.reduce((p,c)=>{
@@ -119,6 +156,7 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
 	
 
 	if (type === 'MESEDITOR'){
+        console.log(id)
 		return{
 			...state, [id]: {...state[id], draft: {...state[id]?.draft, messageEditor: data}}
 		}

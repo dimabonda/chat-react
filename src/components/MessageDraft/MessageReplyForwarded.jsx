@@ -6,9 +6,10 @@ import { MessageDraftContainer, MessageDraftInfo, MessageDraftText, MessageDraft
 import { checkTypeFileForReply } from '../ReplyMessageMediaIcon/ReplyMessageMediaIcon';
 import { actionAddDraftMessage } from '../../actions/actionsForChats';
 
-const MessageReplyForwarded = ({chat, deleteDraftMessage}) => {
-    const message = chat?.draft?.mainInputValue?.message || null;
+const MessageReplyForwarded = ({message, chatId, deleteDraftMessage}) => {
+    // const message = chat?.draft?.mainInputValue?.message || null;
     const typeMessage = message && Object.keys(message)
+    console.log(typeMessage)
     return (message) ? 
         <MessageDraftWrapper>
             {message.hasOwnProperty('reply') ? <ReplyIcon color="primary"/> : <ForwardRoundedIcon color="primary"/>}
@@ -23,7 +24,7 @@ const MessageReplyForwarded = ({chat, deleteDraftMessage}) => {
                     </MessageDraftText>
                 </MessageDraftInfo>
             </MessageDraftContainer>
-            <CloseRoundedIcon style={{cursor: 'pointer'}} color="primary" onClick={() => {deleteDraftMessage(chat._id, null)}}/>
+            <CloseRoundedIcon style={{cursor: 'pointer'}} color="primary" onClick={() => {deleteDraftMessage(chatId, null)}}/>
         </MessageDraftWrapper>
     : <div></div>
 }

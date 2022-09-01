@@ -5,6 +5,11 @@ import SimpleBar from 'simplebar-react';
 export const MessagesAreaWrapper = styled.div`
     height: 100%;
     width: 100%;
+`;
+
+export const ScrollableDiv = styled.div`
+    height: 100%;
+    width: 100%;
     overflow: hidden auto;
     position: relative;
     display: flex;

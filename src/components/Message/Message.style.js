@@ -6,33 +6,34 @@ export const MessageWrapper = styled.div`
 `;
 
 export const MessageContainer = styled.div`
-color: #000;
-max-width: 400px;
-background-color: ${props => props.isOwner ? '#E2DCC2' : '#CCCCCC'};
-padding: 12px 16px 8px;
-position: relative;
-display: block;
-border-radius: 5px 5px 5px 0px;
-&::before{
-    content: '';
-    width: 15px;
-    height: 15px;
-    position: absolute;
+    color: #000;
+    max-width: 400px;
+    min-width: 120px;
     background-color: ${props => props.isOwner ? '#E2DCC2' : '#CCCCCC'};
-    bottom: 0;
-    left: -14px;
-    clip-path: polygon(75% 63%, 83% 53%, 90% 41%, 94% 31%, 98% 15%, 100% 0, 100% 100%, 22% 100%, 34% 94%, 43% 88%, 55% 80%, 65% 72%);
-};
+    padding: 12px 16px 8px;
+    position: relative;
+    display: block;
+    border-radius: 5px 5px 5px 0px;
+    &::before{
+        content: '';
+        width: 15px;
+        height: 15px;
+        position: absolute;
+        background-color: ${props => props.isOwner ? '#E2DCC2' : '#CCCCCC'};
+        bottom: 0;
+        left: -14px;
+        clip-path: polygon(75% 63%, 83% 53%, 90% 41%, 94% 31%, 98% 15%, 100% 0, 100% 100%, 22% 100%, 34% 94%, 43% 88%, 55% 80%, 65% 72%);
+    };
 
-${props => props.lastElem ? `
-border-radius: 5px 5px 5px 5px;
-&::before{
-    display: none;
-}
-` : ` border-radius: 5px 5px 5px 5px
-        &::before{
-    } `
-} 
+    ${props => props.lastElem ? `
+    border-radius: 5px 5px 5px 5px;
+    &::before{
+        display: none;
+    }
+    ` : ` border-radius: 5px 5px 5px 5px
+            &::before{
+        } `
+    } 
 
 `;
 

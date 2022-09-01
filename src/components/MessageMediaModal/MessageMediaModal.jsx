@@ -56,6 +56,12 @@ const MessageMediaModal = ({chatId, handleClose, deleteMedia, deleteDraftMessage
                 label="Caption"
                 onChange = {(e) => setInputValue(chatId, e.target.value, 'mainInputValue')}
                 value={inputValue}
+                onKeyPress={(e) => {
+                    if(e.key === 'Enter'){
+                        e.preventDefault();
+                        sendMessage(null, chatId, inputValue.replace(/^\s+|\s+$/g, ''), media, replyMessageId, null);
+                    }
+                }}
             />
             <MessageMediaFooter>
                 <div 
@@ -66,16 +72,9 @@ const MessageMediaModal = ({chatId, handleClose, deleteMedia, deleteDraftMessage
                 
                 <div>
                     <Button variant="text" onClick={handleClose}>Cancel</Button>
-                    <Button 
-                        variant="text" 
-                        onClick={
-                            async () => {
-                                let val = await sendMessage(null, chatId, inputValue.replace(/^\s+|\s+$/g, ''), media, replyMessageId, null);
-                                val?.replyTo?._id  && deleteDraftMessage(chatId, null)
-                                val && setInputValue(chatId, "", 'mainInputValue'); handleClose();
-                            }
-                        }
-                    >Send</Button>
+                    <Button variant="text" onClick={
+                        () => sendMessage(null, chatId, inputValue.replace(/^\s+|\s+$/g, ''), media, replyMessageId, null)
+                    }>Send</Button>
                 </div>
             </MessageMediaFooter>
         </MessageMediaModalWrapper>

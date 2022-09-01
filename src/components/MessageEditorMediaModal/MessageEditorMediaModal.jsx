@@ -36,18 +36,19 @@ const MessageEditorMediaModal = ({chats, handleClose, deleteMessageEditor, open,
                 variant="standard" 
                 label="Caption"
                 onChange = {(e) => setInputValue(chatId, e.target.value, 'messageEditor')}
+                onKeyPress = {(e) => {
+                    if (e.key === 'Enter'){
+                        e.preventDefault();
+                        sendMessage(messageId, chatId, inputValue.replace(/^\s+|\s+$/g, ''), media, null, null)
+                    }
+                }}
                 value={inputValue}
             />
             <MessageEditorMediaFooter>
                     <Button variant="text" onClick={handleClose}>Cancel</Button>
                     <Button 
                         variant="text" 
-                        onClick={
-                            async () => {
-                                let val = await sendMessage(messageId, chatId, inputValue.replace(/^\s+|\s+$/g, ''), media, null, null);
-                                val && setInputValue(chatId, "", 'messageEditor'); handleClose();
-                            }
-                        }
+                        onClick={() => sendMessage(messageId, chatId, inputValue.replace(/^\s+|\s+$/g, ''), media, null, null)}
                     >Send</Button>
                 </MessageEditorMediaFooter>
         </MessageEditorMediaModalWrapper>

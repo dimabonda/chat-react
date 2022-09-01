@@ -6,11 +6,11 @@ import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import {MessageEditor} from "../MessageDraft/MessageEditor";
 import { actionSetInputMessageValue, actionSetMessageEditor } from "../../actions/actionsForChats";
 
-const InputAreaMessageEditor = ({chats, chatId, deleteMessageEditor, sendMessage, setInputValue}) => {
+const InputAreaMessageEditor = ({messageEditor, chatId, deleteMessageEditor, sendMessage, setInputValue}) => {
     
-    const inputValue = chats[chatId]?.draft?.messageEditor?.value || '';
-    const messageId = chats[chatId]?.draft?.messageEditor?.message._id;
-    const message = chats[chatId]?.draft?.messageEditor?.message;
+    const message = messageEditor?.message;
+    const inputValue = messageEditor?.value || '';
+    const messageId = message?._id;
 
     return (
         <InputAreaWrapper>
@@ -22,25 +22,26 @@ const InputAreaMessageEditor = ({chats, chatId, deleteMessageEditor, sendMessage
                     onChange={e=>{setInputValue(chatId, e.target.value, 'messageEditor')}}
                     maxRows={8}
                     placeholder="Write a message..." 
+                    onKeyPress={(e) => {
+                        if(e.key === 'Enter'){
+                            e.preventDefault();
+                            sendMessage(messageId, chatId, inputValue.replace(/^\s+|\s+$/g, ''), null, null)
+                        }
+                    }}
                 />
                 {inputValue ? 
                 <SendRoundedIcon
                     style={{margin: '0 16px', cursor: "pointer"}}
                     color="primary"
                     // src={Plane} 
-                    onClick={
-                        async() => {
-                            let val = await sendMessage(messageId, null, inputValue.replace(/^\s+|\s+$/g, ''), null, null);
-                            val && deleteMessageEditor(chatId, null);
-                        }
-                    }
+                    onClick={() => {sendMessage(messageId, chatId, inputValue.replace(/^\s+|\s+$/g, ''), null, null)}}
                 /> : <div></div>}
             </div>
         </InputAreaWrapper>
        )
 }
 
-export default connect(state => ({chats: state.chats}), {
+export default connect(null, {
     sendMessage: actionSendMessage,
     setInputValue: actionSetInputMessageValue,
     deleteMessageEditor: actionSetMessageEditor

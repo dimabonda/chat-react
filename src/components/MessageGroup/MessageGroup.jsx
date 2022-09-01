@@ -8,6 +8,9 @@ export const MessageGroup = ({messages, chatId, currUser}) => {
     
     return (
         <MessageGroupWrapper>
+            <MessagesWrapper>
+                {messages.map((mes, i, arr) => <Message key={mes?._id || mes?.status} lastElem={i === 0 ? false : true} currUser={currUser} chatId={chatId} mes={mes}/> )}
+            </MessagesWrapper>
             <AvatarWrapper>
                 <Avatar
                     alt={messages[0]?.nick || messages[0]?.login ||  'avatar'}
@@ -15,9 +18,6 @@ export const MessageGroup = ({messages, chatId, currUser}) => {
                     sx={{width: 45, height: 45, mr: '20px', position: 'sticky', bottom: 0, marginBottom: '5px'}}
                 />
             </AvatarWrapper>
-            <MessagesWrapper>
-                {messages.map((mes, i, arr) => <Message key={mes._id} lastElem={i === 0 ? false : true} currUser={currUser} chatId={chatId} mes={mes}/> )}
-            </MessagesWrapper>
         </MessageGroupWrapper> 
     )
 }

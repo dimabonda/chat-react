@@ -7,18 +7,19 @@ import InputArea from "../InputArea/InputArea";
 import { ChatPageMain, ChatPageWrapper } from "./ChatPageData.style";
 import MessagesArea from "../MessagesArea/MessagesArea";
 
-const ChatPageData = ({match: {params: {_id}}, getData}) => {
+const ChatPageData = ({match: {params: {_id}}, getData, chats}) => {
 	
+	const chat = chats[_id];
 
 	return (
 		<ChatPageWrapper>
-			<ChatPageHeader chatId={_id}/>
+			<ChatPageHeader membersAmount={chat?.members?.length} chatTitle={chat?.title}/>
 			<ChatPageMain>
-				<MessagesArea chatId={_id}/>
-				<InputArea chatId={_id}/>
+				<MessagesArea chatId={_id} messages={chat?.messages}/>
+				<InputArea chat={chat} chatId={_id}/>
 			</ChatPageMain>
 		</ChatPageWrapper>
 	)
 }
 
-export default connect(null, {getData: actionGetMessageForChat})(ChatPageData);
+export default connect(state => ({chats: state?.chats || {}}), {getData: actionGetMessageForChat})(ChatPageData);
