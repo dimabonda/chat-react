@@ -39,7 +39,9 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
     if (type === 'REMOVE_LOADED_MSG'){
         const messages = [...(state[id]?.messages || [[]]) ];
         let indexArrayWithLoadingMessage = messages.findIndex(array => array.find(obj => obj.status))
-        messages[indexArrayWithLoadingMessage] = messages[indexArrayWithLoadingMessage]?.filter(obj => !obj.status)
+        messages[indexArrayWithLoadingMessage] = messages[indexArrayWithLoadingMessage]?.map(obj => {
+            return obj.status ? data : obj
+        })
 
         // let firstArray = messages[0];
         // const firstMessageOfFirstArray = messages[0][0];

@@ -208,7 +208,8 @@ export const actionSendMessage = (messageId, chatId, text, media, replyTo, forwa
 
 		if(!mes?._id && message){
 			dispatch(actionRemoveLoadingMessage(message, chatId))
-			dispatch(actionAddNewMessage(message, chatId))
+
+			// dispatch(actionAddNewMessage(message, chatId))
 			dispatch(actionGetOneChat(chatId));
 		}else if(mes?._id){
 			dispatch(actionAddEditedMessage(message, chatId))
