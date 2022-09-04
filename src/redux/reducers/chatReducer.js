@@ -83,9 +83,10 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
                     firstArray = messages[0]
             }
             firstArray.unshift(data)
+            
         }
             
-           
+        console.log(messages)
         
         
         return {

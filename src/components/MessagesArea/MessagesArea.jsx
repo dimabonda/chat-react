@@ -116,7 +116,7 @@ const MessagesArea = ({currUser, messages, chatId, getMessages, openModal, onLoa
 						<div style={{height: '20px', fontSize: '6px', opacity: '0'}}>1</div>
 						{mess[0]?.length > 0 && mess.map((item, i, arr) => 
 						
-							<div key={item[0]?._id || item[0]?.status}>
+							<div key={i}>
 								<MessagesDate visible={
 									item[item.length-1]?.createdAt && 
 									convert(item[item.length-1]?.createdAt).getDateMonthName() !== convert(arr[i + 1]?.[0]?.createdAt).getDateMonthName() ? true : false
