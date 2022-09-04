@@ -118,6 +118,7 @@ const MessagesArea = ({currUser, messages, chatId, getMessages, openModal, onLoa
 						
 							<div key={item[0]?._id || item[0]?.status}>
 								<MessagesDate visible={
+									item[item.length-1]?.createdAt && 
 									convert(item[item.length-1]?.createdAt).getDateMonthName() !== convert(arr[i + 1]?.[0]?.createdAt).getDateMonthName() ? true : false
 								} timestamp={item[item.length-1]?.createdAt}/> 
 								<MessageGroup messages={item} chatId={chatId} currUser={currUser}/>

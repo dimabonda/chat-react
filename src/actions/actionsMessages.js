@@ -11,7 +11,7 @@ const actionAddMessage = (data, id) => ({type: 'MSG', data, id});
 const actionAddEditedMessage = (data, id) => ({type: 'EDITED_MSG', data, id});
 const actionAddNewMessage = (data, id) => ({type: 'NEW_MESSAGE', data, id});
 // const actionAddLoadingMessage = (data, id) => ({type: 'LOADED_MSG', data, id})
-const actionRemoveLoadingMessage = (id) => ({type: 'REMOVE_LOADED_MSG', id});
+const actionRemoveLoadingMessage = (data, id) => ({type: 'REMOVE_LOADED_MSG', data, id});
 
 export const actionGetAllMessage = (_id) => 
 	actionPromise('allMessages', gql(`query findAllMes($chatId: String) {
@@ -207,7 +207,7 @@ export const actionSendMessage = (messageId, chatId, text, media, replyTo, forwa
 		let message = await dispatch(actionUpsertMSG(mes))
 
 		if(!mes?._id && message){
-			dispatch(actionRemoveLoadingMessage(chatId))
+			dispatch(actionRemoveLoadingMessage(message, chatId))
 			dispatch(actionAddNewMessage(message, chatId))
 			dispatch(actionGetOneChat(chatId));
 		}else if(mes?._id){

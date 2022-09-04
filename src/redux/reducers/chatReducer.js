@@ -39,7 +39,16 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
     if (type === 'REMOVE_LOADED_MSG'){
         const messages = [...(state[id]?.messages || [[]]) ];
         let indexArrayWithLoadingMessage = messages.findIndex(array => array.find(obj => obj.status))
-        messages[indexArrayWithLoadingMessage] = messages[indexArrayWithLoadingMessage].filter(obj => !obj.status)
+        messages[indexArrayWithLoadingMessage] = messages[indexArrayWithLoadingMessage]?.filter(obj => !obj.status)
+
+        // const firstArray = messages[0];
+        //     const firstMessageOfFirstArray = messages[0][0];
+        //     if(data?.createdAt - firstMessageOfFirstArray?.createdAt > 600000 
+        //         || (firstMessageOfFirstArray?.createdAt ? convert(firstMessageOfFirstArray?.createdAt).getDateMonthName() !== convert(data?.createdAt).getDateMonthName() : false )
+        //         ||  (firstMessageOfFirstArray?.owner ? firstMessageOfFirstArray?.owner?._id !== data?.owner?._id : false) ){
+        //             messages.pop([])
+        //     }
+        //     firstArray.unshift(data)
         return {
             ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
                 messages : messages
@@ -62,16 +71,27 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
 
     if (type === 'NEW_MESSAGE'){
         const messages = [...(state[id]?.messages || [[]]) ]
-        
-            const firstArray = messages[0];
-            console.log(firstArray);
-            const firstMessageOfFirstArray = messages[0][0];
-            if(+ new Date - firstMessageOfFirstArray?.createdAt > 600000 
+        let firstArray = messages[0];
+        const firstMessageOfFirstArray = messages[0][0];
+        if (data?.status){
+            if(+ new Date - firstMessageOfFirstArray?.createdAt > 60000 
                 || (firstMessageOfFirstArray?.createdAt ? convert(firstMessageOfFirstArray?.createdAt).getDateMonthName() !== convert(+new Date).getDateMonthName() : false )
                 ||  (firstMessageOfFirstArray?.owner ? firstMessageOfFirstArray?.owner?._id !== data?.owner?._id : false) ){
-                    messages.pop([])
+                    messages.unshift([])
+                    firstArray = messages[0]
             }
             firstArray.unshift(data)
+        } else {
+            if(data?.createdAt - firstMessageOfFirstArray?.createdAt > 60000 
+                || (firstMessageOfFirstArray?.createdAt ? convert(firstMessageOfFirstArray?.createdAt).getDateMonthName() !== convert(data?.createdAt).getDateMonthName() : false )
+                ||  (firstMessageOfFirstArray?.owner ? firstMessageOfFirstArray?.owner?._id !== data?.owner?._id : false) ){
+                    messages.unshift([])
+                    firstArray = messages[0]
+            }
+            firstArray.unshift(data)
+        }
+            
+           
         
         
         return {
@@ -85,7 +105,7 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
         const messages = data.reduce((p,c)=>{
             let lastArray = p[p.length - 1];
             const lastMessageOfLastArray = p[p.length-1][p[p.length-1].length - 1 ];
-            if( lastMessageOfLastArray?.createdAt - c.createdAt > 600000 
+            if( lastMessageOfLastArray?.createdAt - c.createdAt > 60000 
                     || (lastMessageOfLastArray?.createdAt ? convert(lastMessageOfLastArray?.createdAt).getDateMonthName() !== convert(c.createdAt).getDateMonthName() : false )
                     || (lastMessageOfLastArray?.owner ? lastMessageOfLastArray?.owner?._id !== c?.owner?._id : false)  ){
                 p.push([]);
