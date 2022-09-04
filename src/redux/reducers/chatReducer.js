@@ -41,14 +41,15 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
         let indexArrayWithLoadingMessage = messages.findIndex(array => array.find(obj => obj.status))
         messages[indexArrayWithLoadingMessage] = messages[indexArrayWithLoadingMessage]?.filter(obj => !obj.status)
 
-        // const firstArray = messages[0];
-        //     const firstMessageOfFirstArray = messages[0][0];
-        //     if(data?.createdAt - firstMessageOfFirstArray?.createdAt > 600000 
-        //         || (firstMessageOfFirstArray?.createdAt ? convert(firstMessageOfFirstArray?.createdAt).getDateMonthName() !== convert(data?.createdAt).getDateMonthName() : false )
-        //         ||  (firstMessageOfFirstArray?.owner ? firstMessageOfFirstArray?.owner?._id !== data?.owner?._id : false) ){
-        //             messages.pop([])
-        //     }
-        //     firstArray.unshift(data)
+        let firstArray = messages[0];
+        const firstMessageOfFirstArray = messages[0][0];
+        if(data?.createdAt - firstMessageOfFirstArray?.createdAt > 60000 
+            || (firstMessageOfFirstArray?.createdAt ? convert(firstMessageOfFirstArray?.createdAt).getDateMonthName() !== convert(data?.createdAt).getDateMonthName() : false )
+            ||  (firstMessageOfFirstArray?.owner ? firstMessageOfFirstArray?.owner?._id !== data?.owner?._id : false) ){
+                messages.unshift([])
+                firstArray = messages[0]
+        }
+        firstArray.unshift(data)
         return {
             ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
                 messages : messages
