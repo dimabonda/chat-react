@@ -16,4 +16,5 @@ const getGQL = url =>
     })
 
 export const backendURL = 'https://young-headland-40995.herokuapp.com';
+
 export const gql = getGQL(backendURL + '/graphql');

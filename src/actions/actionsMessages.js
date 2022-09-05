@@ -239,7 +239,8 @@ export const actionGetMessageFromSocket = (msg) =>
 		if(message?.owner?._id !== currentUser){
 			const arrayWithLastLoadedMessage = messages.find(array => array.find(obj => !obj.status))
 			const lastLoadedMessage = arrayWithLastLoadedMessage.find(obj => !obj.status);
-			lastLoadedMessage?.createAt < message?.createAt ? dispatch(actionAddNewMessage(message, message?.chat?._id)) : dispatch(actionAddEditedMessage(message, message?.chat?._id))
+			console.log(lastLoadedMessage?.createdAt, message?.createdAt)
+			lastLoadedMessage?.createdAt < message?.createdAt ? dispatch(actionAddNewMessage(message, message?.chat?._id)) : dispatch(actionAddEditedMessage(message, message?.chat?._id))
 			dispatch(actionGetOneChat(msg.chat._id));
 		}
 
@@ -259,7 +260,7 @@ export const actionGetMessageFromSocket = (msg) =>
 		if(forwardWith){
 			forwardWith.forEach(async ({_id, chat}) => {
 					let mes = await dispatch(actionGetOneMessage(_id))
-					dispatch(actionAddMessage(mes, chat._id));
+					dispatch(actionAddEditedMessage(mes, chat._id));
 			})
 		}
 		const {media} = msg;
