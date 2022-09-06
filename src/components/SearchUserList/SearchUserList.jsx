@@ -6,7 +6,6 @@ import 'simplebar/dist/simplebar.min.css';
 
 const SearchUserList = ({users, members, handleSetUser, userId}) => {
     //filter current user from users
-    console.log(members)
     return (
         <SearchUserListWrapper >
             <SimpleBar style={{ maxHeight: '100%'}}>

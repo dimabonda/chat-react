@@ -7,11 +7,15 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { AsideWrap, SearchAppBarWrapper, SearchInput } from "./Aside.style";
 
 export const Aside = ({chats}) => {
+	const DELAY = 1000;
 	const [isOpen, setOpen] = useState(false);
 	const [filteredChats, setFilteredChats] = useState([]);
 	const [value, setValue] = useState('');
 	useEffect(() => {
-		setFilteredChats(Object.values(chats).filter((chat) => chat?.title?.toLowerCase().includes(value)));
+		const delayDebounceFn = setTimeout(() => {
+			setFilteredChats(Object.values(chats).filter((chat) => chat?.title?.toLowerCase().includes(value)));
+		}, DELAY)
+		return () => clearTimeout(delayDebounceFn);
 	}, [value, chats]);
 	
 	return (

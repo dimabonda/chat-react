@@ -9,7 +9,6 @@ import { actionAddDraftMessage } from '../../actions/actionsForChats';
 const MessageReplyForwarded = ({message, chatId, deleteDraftMessage}) => {
     // const message = chat?.draft?.mainInputValue?.message || null;
     const typeMessage = message && Object.keys(message)
-    console.log(typeMessage)
     return (message) ? 
         <MessageDraftWrapper>
             {message.hasOwnProperty('reply') ? <ReplyIcon color="primary"/> : <ForwardRoundedIcon color="primary"/>}

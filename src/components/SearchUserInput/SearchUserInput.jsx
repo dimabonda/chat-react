@@ -5,10 +5,14 @@ import { SUInput, SearchUserInputWrapper } from "./SearchUserInput.style"
 import SearchIcon from "./search_icon.svg";
 
 const SearchUserInput = ({findUsers}) => {
+    const DELAY = 1000;
     const [value, setValue] = useState('');
-
     useEffect(() => {
-            findUsers(value);
+        const delayDebounceFn = setTimeout(() => {
+			findUsers(value);
+		}, DELAY)
+		return () => clearTimeout(delayDebounceFn);
+            
     }, [value])
 
     return (

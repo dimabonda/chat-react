@@ -13,11 +13,14 @@ import 'simplebar/dist/simplebar.min.css';
 import { actionAddDraftMessage } from "../../actions/actionsForChats";
 
 const SearchChatModal = ({handleClose, chats, forwardedMessage, addForwardedMessageToChat}) => {
-
+    const DELAY = 1000;
     const [value, setValue] = useState('');
     const [chatsArr, setChatsArr] = useState([]);
     useEffect(() => {
-        setChatsArr(Object.values(chats).filter((chat) => chat?.title?.toLowerCase().includes(value)));
+        const delayDebounceFn = setTimeout(() => {
+			setChatsArr(Object.values(chats).filter((chat) => chat?.title?.toLowerCase().includes(value)));
+		}, DELAY)
+		return () => clearTimeout(delayDebounceFn);
     }, [value]);
 
     return (

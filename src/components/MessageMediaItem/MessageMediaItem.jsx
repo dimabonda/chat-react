@@ -11,11 +11,11 @@ export const MessageMediaItem = ({file}) => {
     file.originalFileName
 
     const checkType = (type) => {
-        if (type.includes("image")){
+        if (type?.includes("image")){
             return <MessageImgItem url={url} name={name}/>
-        }else if (type.includes("audio")){
+        }else if (type?.includes("audio")){
             return <AudioItem url={url} name={name}/>
-        }else if(type.includes("video")){
+        }else if(type?.includes("video")){
             return <MessageVideoItem url={url} name={name}/>
         }else {
             return <FileItem url={url} name={name}/>

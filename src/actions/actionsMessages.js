@@ -239,7 +239,6 @@ export const actionGetMessageFromSocket = (msg) =>
 		if(message?.owner?._id !== currentUser){
 			const arrayWithLastLoadedMessage = messages.find(array => array.find(obj => !obj.status))
 			const lastLoadedMessage = arrayWithLastLoadedMessage.find(obj => !obj.status);
-			console.log(lastLoadedMessage?.createdAt, message?.createdAt)
 			lastLoadedMessage?.createdAt < message?.createdAt ? dispatch(actionAddNewMessage(message, message?.chat?._id)) : dispatch(actionAddEditedMessage(message, message?.chat?._id))
 			dispatch(actionGetOneChat(msg.chat._id));
 		}
@@ -287,7 +286,6 @@ export const actionEditMessage = (chatId, message) =>
 		if (state.promise.messages?.status === 'PENDING') return
 		// let messLen = Object.values(state.chats[_id]?.messages || {}).length;
 		let messLen = state.chats[_id]?.messages ? state.chats[_id]?.messages.reduce((currentCount, array) => currentCount + array.length, 0) : 0;
-		console.log('skip', messLen)
 		let messages = await dispatch(
 			actionPromise('messages', gql(`query FindMessChat($chat: String) {
 				MessageFind(query: $chat) {
