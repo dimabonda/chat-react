@@ -15,6 +15,6 @@ const getGQL = url =>
         else throw new Error(JSON.stringify(data.errors))
     })
 
-export const backendURL = 'https://young-headland-40995.herokuapp.com/';
+export const backendURL = 'https://young-headland-40995.herokuapp.com';
 
 export const gql = getGQL(backendURL + '/graphql');

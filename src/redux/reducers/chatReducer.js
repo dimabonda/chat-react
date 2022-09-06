@@ -85,9 +85,6 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
             firstArray.unshift(data)
             
         }
-            
-        console.log(messages)
-        
         
         return {
             ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
