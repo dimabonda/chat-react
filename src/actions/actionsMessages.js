@@ -5,12 +5,12 @@ import { addUploadDate } from "../helpers/addUploadDate";
 import { actionAddDraftMessage, actionGetOneChat, actionSetDropMedia, actionSetInputMessageValue, actionSetMessageEditor } from "./actionsForChats";
 import { actionGetAllMediaFromChat } from "./actionsMedia";
 import { actionIsOpen, actionOpenModal } from "./actionsForModal";
+import { history } from "../App";
 
 const actionAddMessages = (data, id) => ({type: 'MESSAGES', data, id});
 const actionAddMessage = (data, id) => ({type: 'MSG', data, id});
 const actionAddEditedMessage = (data, id) => ({type: 'EDITED_MSG', data, id});
 const actionAddNewMessage = (data, id) => ({type: 'NEW_MESSAGE', data, id});
-// const actionAddLoadingMessage = (data, id) => ({type: 'LOADED_MSG', data, id})
 const actionRemoveLoadingMessage = (data, id) => ({type: 'REMOVE_LOADED_MSG', data, id});
 
 export const actionGetAllMessage = (_id) => 
@@ -91,31 +91,6 @@ const actionGetOneMessage = (_id) =>
 		}
 	}`, {mesId: JSON.stringify([{_id}])}))
 
-const actionUpdateOneMessage = (msg) => 
-	async (dispatch, getState) => {
-		
-		
-		let message = await dispatch(actionGetOneMessage(msg._id));
-		
-		// if(message?.owner._id === currentUser){
-		// 	if(messages[0])
-		// }
-
-		// if(data?.createdAt > lastLoadedMessage){             //check message (first or not)
-			
-
-			// if(data?.owner._id === currentUser){
-
-			// } else {
-			// 	dispatch(actionAddNewMessage(data, msg?.chat?._id))
-			// }
-		// }
-		// если юзер ты то поменять или не ты 
-		// элс найти нужное сообщение 
-		// и подменяем 
-		// dispatch(actionAddMessage(message, message.chat._id));
-		return message
-	}
 
 export const actionUpsertMSG = (message) => 
 	actionPromise('sendMSG', gql(`mutation MessageUpsert($message: MessageInput) {
@@ -233,23 +208,43 @@ export const actionSendMessage = (messageId, chatId, text, media, replyTo, forwa
 
 export const actionGetMessageFromSocket = (msg) => 
 	async (dispatch, getState) => {
+		const [,route, chatId] = history.location.pathname.split('/');
 		const currentUser = getState()?.auth?.payload?.sub?.id;
-		const messages = getState()?.chats[msg?.chat?._id]?.messages || [[]];
+		if(msg?.owner?._id === currentUser) return
+
 		let message = await dispatch(actionGetOneMessage(msg._id));
-		if(message?.owner?._id !== currentUser){
-			const arrayWithLastLoadedMessage = messages.find(array => array.find(obj => !obj.status))
-			const lastLoadedMessage = arrayWithLastLoadedMessage.find(obj => !obj.status);
-			lastLoadedMessage?.createdAt < message?.createdAt ? dispatch(actionAddNewMessage(message, message?.chat?._id)) : dispatch(actionAddEditedMessage(message, message?.chat?._id))
-			dispatch(actionGetOneChat(msg.chat._id));
+		dispatch(actionGetOneChat(msg.chat._id));
+		const isCurrentChat = message?.chat?._id === chatId
+		const messages = getState()?.chats[msg?.chat?._id]?.messages;
+		const chatIsEmpty = !messages?.[0]?.[0]
+		if(isCurrentChat){
+			if(chatIsEmpty){
+				dispatch(actionAddNewMessage(message, message?.chat?._id))
+			} else {
+				const arrayWithLastLoadedMessage = messages?.find(array => array.find(obj => !obj.status))
+				const lastLoadedMessage = arrayWithLastLoadedMessage?.find(obj => !obj.status);
+				lastLoadedMessage?.createdAt < message?.createdAt ? dispatch(actionAddNewMessage(message, message?.chat?._id)) : dispatch(actionAddEditedMessage(message, message?.chat?._id))
+			}
+		} else {
+			if (!messages) return 
+			if(chatIsEmpty){
+				dispatch(actionAddNewMessage(message, message?.chat?._id))
+			} else {
+				const arrayWithLastLoadedMessage = messages?.find(array => array.find(obj => !obj.status))
+				const lastLoadedMessage = arrayWithLastLoadedMessage?.find(obj => !obj.status);
+				lastLoadedMessage?.createdAt < message?.createdAt ? dispatch(actionAddNewMessage(message, message?.chat?._id)) : dispatch(actionAddEditedMessage(message, message?.chat?._id))
+			}
 		}
+			
+			
+		
 
 		
 		
 		////////check all replies and forwardWith (if message has them to send changes)
-		console.log(message)
 		const {replies, forwardWith} = message;
 		const state = getState();
-		// const [,route, histId] = history.location.pathname.split('/');
+		
 		if(replies){
 			replies.forEach(async ({_id, chat}) => {
 					let mes = await dispatch(actionGetOneMessage(_id))

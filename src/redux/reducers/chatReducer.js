@@ -53,9 +53,13 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
     if (type === 'EDITED_MSG'){
         const messages = [...(state[id]?.messages || [[]]) ];
         let indexArrayWithMessage = messages.findIndex(array => array.find(obj => obj._id === data._id))
-        messages[indexArrayWithMessage] = messages[indexArrayWithMessage].map(obj => {
-            return obj._id === data._id ? data : obj
-        })
+        
+        if (indexArrayWithMessage !== -1){
+            messages[indexArrayWithMessage] = messages[indexArrayWithMessage].map(obj => {
+                return obj._id === data._id ? data : obj
+            }) 
+        }
+        
         return {
             ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
                 messages : messages
@@ -85,7 +89,7 @@ export function chatReducer (state={}, {type, data, id, mediaKey, name}){
             firstArray.unshift(data)
             
         }
-        
+
         return {
             ...state, [id]: {...(state[id] || {_id: id, title: "loading"}), 
                 messages : messages
